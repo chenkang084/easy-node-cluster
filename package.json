@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "easy-node-cluster": "./bin/easy-node-cluster"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rimraf ./lib && tsc && node test/index.test.js"
@@ -20,7 +23,9 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
+    "commander": "^3.0.2",
     "express": "^4.17.1",
-    "moment": "^2.24.0"
+    "moment": "^2.24.0",
+    "optimist": "^0.6.1"
   }
 }

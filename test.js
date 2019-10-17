@@ -1,6 +1,7 @@
 var cluster = require("cluster");
 
 if (cluster.isMaster) {
+  console.log(process.pid);
   var numWorkers = require("os").cpus().length;
 
   console.log("Master cluster setting up " + numWorkers + " workers...");

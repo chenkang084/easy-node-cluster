@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+"use strict";
+const program = require("commander");
+const chalk = require("chalk");
+const argv = require("optimist").boolean("cors").argv;
+
+const EasyNodeCluster = new require("../lib").default;
+const easyNodeCluster = new EasyNodeCluster();
+
+program.option("--start", "start server").option("--stop", "stop server");
+
+program.parse(process.argv);
+
+if (program.start) {
+  // console.log("program.start", easyNodeCluster);
+  //
+  easyNodeCluster.start();
+}
+
+if (program.stop) {
+  console.log("program.stop", easyNodeCluster.agentPid);
+}

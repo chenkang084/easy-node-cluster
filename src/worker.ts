@@ -1,7 +1,11 @@
 import { cpus } from 'os';
 const cluster = require('cluster');
 import { logger } from './utils/logger';
-// const app = require('../test/app.js');
+import { writeProcessInfo } from './utils/persistProcess';
+
+const appPath = process.argv[2];
+// console.log(appPath, '======');
+
 /**
  * run app in one process
  */
@@ -11,8 +15,6 @@ const cpuNums = 2;
 
 if (cluster.isMaster) {
   process.send(`**********${process.pid} **********`);
-
-  console.log(`worker--master process say:${process.pid}`);
 
   for (let i = 0; i < cpuNums; i++) {
     const worker = cluster.fork();
@@ -35,26 +37,13 @@ if (cluster.isMaster) {
     cluster.fork();
   });
 } else {
-  const app = require('express')();
-  app.get('/', function(req: any, res: any) {
-    console.log(process.pid);
+  console.log(`process:${process.pid} start app`);
+  // run app
+  require(appPath);
 
-    process.exit();
+  process.send(`${process.pid}:done`);
 
-    res.send('process ' + process.pid + ' says hello!').end();
-  });
-
-  const server = app.listen(8000, function() {
-    console.log(
-      'Process ' + process.pid + ' is listening to all incoming requests'
-    );
-  });
-}
-
-function exit(type: string) {
-  return function() {
-    console.log(`******* ${type}:exit,${process.pid} ********`);
-
-    // process.send('restart');
-  };
+  setTimeout(() => {
+    writeProcessInfo({ [`worker_${process.pid}`]: process.pid });
+  }, 100);
 }
