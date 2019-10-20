@@ -1,4 +1,4 @@
-import { fork, execFileSync } from 'child_process';
+import { fork, execFileSync, spawn } from 'child_process';
 import { join } from 'path';
 import { writeFileSync, unlinkSync, existsSync } from 'fs';
 import { initProcessInfoFile, writeProcessInfo } from './utils/persistProcess';
@@ -27,8 +27,16 @@ class EasyNodeCluster extends EventEmitter {
   forkWorkers() {
     console.log('------start app process to fork worker------');
 
-    const appProcess = fork(join(__dirname, WORKER_PATH), ['../test/app.js']);
-    writeProcessInfo({ agentPid: this.agentPid = appProcess.pid });
+    // const appProcess = fork(join(__dirname, WORKER_PATH), ['../test/app.js'], {
+    //   detached: true
+    // });
+
+    const appProcess = spawn('node', [join(__dirname, '../test/app.js')], {
+      detached: true
+      // stdio: ['ignore', 'ipc']
+    });
+
+    writeProcessInfo(`agentPid: ${(this.agentPid = appProcess.pid)},`);
 
     appProcess.on('message', (msg: string) => {
       console.log(`master:worker received msg:${msg}`);

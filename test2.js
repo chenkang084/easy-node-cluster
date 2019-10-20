@@ -1,42 +1,28 @@
-var cluster = require("cluster");
+const { fork, execFileSync, spawn } = require('child_process');
+const { join } = require('path');
 
-if (cluster.isMaster) {
-  console.log("master", process.pid);
+var fs = require('fs'),
+  out = fs.openSync('./out1.log', 'a'),
+  err = fs.openSync('./out2.log', 'a');
 
-  const worker = cluster.fork();
+// console.log(join(__dirname, './test/app.js'));
 
-  setInterval(() => {
-    console.log("hello");
-  }, 4000);
+// spawn('node', [join(__dirname, './test.js')], {
+//   detached: true,
+//   stdio: ['ignore', out, err]
+// });
 
-  cluster.on("exit", function(worker, code, signal) {
-    console.log(
-      "Worker " +
-        worker.process.pid +
-        " died with code: " +
-        code +
-        ", and signal: " +
-        signal
-    );
-    console.log("Starting a new worker");
-    cluster.fork();
-  });
-} else {
-  console.log("fork:", process.pid);
+spawn(
+  'node',
+  [
+    '/Users/kangchen/workspaces/node/easy-node-cluster/node_modules/forever/bin/monitor',
+    './test/app.js'
+  ],
+  {
+    detached: true,
+    stdio: ['ignore', out, err]
+  }
+);
 
-  process.once("SIGINT", function() {
-    console.log("1");
-  });
-  // kill(3) Ctrl-\
-  process.once("SIGQUIT", function() {
-    console.log("1");
-  });
-  // kill(15) default
-  process.once("SIGTERM", function() {
-    console.log("1");
-  });
-
-  process.once("exit", function() {
-    console.log("1");
-  });
-}
+// stdio: ['ipc', 44, 45],
+//     detached: true

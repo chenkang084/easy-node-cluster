@@ -44,6 +44,6 @@ if (cluster.isMaster) {
   process.send(`${process.pid}:done`);
 
   setTimeout(() => {
-    writeProcessInfo({ [`worker_${process.pid}`]: process.pid });
+    writeProcessInfo(`worker:${process.pid},`);
   }, 100);
 }

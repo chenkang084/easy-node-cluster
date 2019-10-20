@@ -1,44 +1,21 @@
-var cluster = require("cluster");
+var { spawn } = require('child_process');
 
-if (cluster.isMaster) {
-  console.log(process.pid);
-  var numWorkers = require("os").cpus().length;
+// function start() {
+//   const worker = spawn('node', ['./test/app.js'], {
+//     detached: true,
+//     stdio: 'ignore'
+//     //   stdio: 'ignore'
+//   });
 
-  console.log("Master cluster setting up " + numWorkers + " workers...");
+//   worker.unref();
+// }
 
-  for (var i = 0; i < numWorkers; i++) {
-    cluster.fork();
-  }
+// start();
 
-  cluster.on("online", function(worker) {
-    console.log("Worker " + worker.process.pid + " is online");
-  });
+const worker = spawn('node', ['./test/app.js'], {
+  detached: true,
+  stdio: 'ignore'
+  //   stdio: 'ignore'
+});
 
-  cluster.on("exit", function(worker, code, signal) {
-    console.log(
-      "Worker " +
-        worker.process.pid +
-        " died with code: " +
-        code +
-        ", and signal: " +
-        signal
-    );
-    console.log("Starting a new worker");
-    cluster.fork();
-  });
-} else {
-  var app = require("express")();
-  app.get("/", function(req, res) {
-    console.log(process.pid);
-
-    process.exit();
-
-    res.send("process " + process.pid + " says hello!").end();
-  });
-
-  var server = app.listen(8000, function() {
-    console.log(
-      "Process " + process.pid + " is listening to all incoming requests"
-    );
-  });
-}
+worker.unref();

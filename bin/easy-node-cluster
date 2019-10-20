@@ -3,20 +3,20 @@
 const program = require("commander");
 const chalk = require("chalk");
 const argv = require("optimist").boolean("cors").argv;
+const { readProcessInfo } = require("../lib/utils/persistProcess");
 
 const EasyNodeCluster = new require("../lib").default;
-const easyNodeCluster = new EasyNodeCluster();
 
 program.option("--start", "start server").option("--stop", "stop server");
 
 program.parse(process.argv);
 
 if (program.start) {
-  // console.log("program.start", easyNodeCluster);
-  //
+  const easyNodeCluster = new EasyNodeCluster();
+
   easyNodeCluster.start();
 }
 
 if (program.stop) {
-  console.log("program.stop", easyNodeCluster.agentPid);
+  console.log("program.stop", readProcessInfo());
 }

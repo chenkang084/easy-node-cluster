@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rimraf ./lib && tsc && node test/index.test.js"
+    "build": "rimraf ./lib && tsc "
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +25,7 @@
   "dependencies": {
     "commander": "^3.0.2",
     "express": "^4.17.1",
+    "forever": "^1.0.0",
     "moment": "^2.24.0",
     "optimist": "^0.6.1"
   }

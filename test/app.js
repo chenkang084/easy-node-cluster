@@ -1,14 +1,18 @@
-const app = require("express")();
-app.get("/", function(req, res) {
+console.log('app.js');
+
+const app = require('express')();
+app.get('/', function(req, res) {
   console.log(process.pid);
 
-  process.exit();
+  // process.exit();
 
-  res.send("process " + process.pid + " says hello!").end();
+  res.send('process ' + process.pid + ' says hello!').end();
 });
 
-const server = app.listen(8000, function() {
+app.listen(8000, function() {
   console.log(
-    "Process " + process.pid + " is listening to all incoming requests"
+    'Process ' + process.pid + ' is listening to all incoming requests'
   );
+
+  process.send('started');
 });
