@@ -42,8 +42,4 @@ if (cluster.isMaster) {
   require(appPath);
 
   process.send(`${process.pid}:done`);
-
-  // setTimeout(() => {
-  //   writeProcessInfo(`worker:${process.pid},`);
-  // }, 100);
 }

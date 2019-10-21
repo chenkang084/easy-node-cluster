@@ -27,9 +27,13 @@ class EasyNodeMaster extends EventEmitter {
   }
 
   startAgent() {
-    const agent = spawn('node', [join(__dirname, './agent.js')], {
-      stdio: ['ignore', out, err, 'ipc']
-    });
+    const agent = spawn(
+      'node',
+      [join(__dirname, './agent.js'), '--title=easy-node-cluster'],
+      {
+        stdio: ['ignore', out, err, 'ipc']
+      }
+    );
 
     agent.on('message', msg => {
       console.log(`received agent msg:${msg}`);
