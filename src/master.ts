@@ -12,9 +12,6 @@ const WORKER_PATH = `./worker.js`;
 interface clusterOptions {}
 
 class EasyNodeMaster extends EventEmitter {
-  readonly masterPid: number;
-  agentPid: number;
-
   constructor() {
     super();
     console.log(`start master process:${process.pid}`);
@@ -31,7 +28,7 @@ class EasyNodeMaster extends EventEmitter {
       'node',
       [join(__dirname, './agent.js'), '--title=easy-node-cluster'],
       {
-        stdio: ['ignore', out, err, 'ipc']
+        stdio: ['ignore', process.stdout, process.stderr, 'ipc']
       }
     );
 

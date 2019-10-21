@@ -4,12 +4,17 @@ const program = require('commander');
 const chalk = require('chalk');
 const argv = require('optimist').boolean('cors').argv;
 const runScript = require('runscript');
+const path = require('path');
 
 const { readProcessInfo } = require('../lib/utils/persistProcess');
 
 const EasyNodeCluster = new require('../lib').default;
 
-program.option('--start', 'start server').option('--stop', 'stop server');
+program
+  .option('--start', 'start server')
+  .option('--stop', 'stop server')
+  .option('--list', 'list active process')
+  .option('--log', 'show logs');
 
 program.parse(process.argv);
 
@@ -34,6 +39,37 @@ if (program.stop) {
 
           process.kill(processId);
         });
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
+
+if (program.list) {
+  runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
+    .then(stdio => {
+      stdio.stdout
+        .toString()
+        .split('\n')
+        .filter(item => item.includes('node') && item.includes('--title'))
+        .map(line => {
+          return line.split(' ').filter(item => !!item)[1];
+        })
+        .forEach(processId => {
+          console.log(`process:${processId}`);
+        });
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
+
+if (program.log) {
+  runScript(`cat ${path.join(__dirname, '../out1.log')}`, {
+    stdio: 'pipe'
+  })
+    .then(stdio => {
+      console.log(stdio.stdout.toString());
     })
     .catch(err => {
       console.error(err);
