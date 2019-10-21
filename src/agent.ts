@@ -1,5 +1,4 @@
 import { logger } from './utils/logger';
-import { fork, isMaster, isWorker } from 'cluster';
 
 // do some shedule jobs
 
@@ -7,4 +6,8 @@ import { fork, isMaster, isWorker } from 'cluster';
 
 logger.info(`start agent, processId:${process.pid}`);
 
+// console.log(this);
+
 process.send('start agent done.');
+
+setInterval(() => {}, 1000 * 60 * 60 * 24);

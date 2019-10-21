@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-"use strict";
-const program = require("commander");
-const chalk = require("chalk");
-const argv = require("optimist").boolean("cors").argv;
-const { readProcessInfo } = require("../lib/utils/persistProcess");
+'use strict';
+const program = require('commander');
+const chalk = require('chalk');
+const argv = require('optimist').boolean('cors').argv;
+const runScript = require('runscript');
 
-const EasyNodeCluster = new require("../lib").default;
+const { readProcessInfo } = require('../lib/utils/persistProcess');
 
-program.option("--start", "start server").option("--stop", "stop server");
+const EasyNodeCluster = new require('../lib').default;
+
+program.option('--start', 'start server').option('--stop', 'stop server');
 
 program.parse(process.argv);
 
@@ -18,5 +20,22 @@ if (program.start) {
 }
 
 if (program.stop) {
-  console.log("program.stop", readProcessInfo());
+  runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
+    .then(stdio => {
+      stdio.stdout
+        .toString()
+        .split('\n')
+        .filter(item => item.includes('node') && item.includes('--title'))
+        .map(line => {
+          return line.split(' ').filter(item => !!item)[1];
+        })
+        .forEach(processId => {
+          console.log(`kill process:${processId}`);
+
+          process.kill(processId);
+        });
+    })
+    .catch(err => {
+      console.error(err);
+    });
 }

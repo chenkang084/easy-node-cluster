@@ -27,6 +27,7 @@
     "express": "^4.17.1",
     "forever": "^1.0.0",
     "moment": "^2.24.0",
-    "optimist": "^0.6.1"
+    "optimist": "^0.6.1",
+    "runscript": "^1.4.0"
   }
 }

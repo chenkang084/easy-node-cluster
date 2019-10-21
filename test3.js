@@ -10,7 +10,7 @@ function startDaemon() {
   //     stdio: 'ignore'
   //   });
 
-  const daemon = spawn('node', ['./test/app.js'], {
+  const daemon = spawn('node', ['./test/app.js', '--title=easy-node-cluster'], {
     // cwd: '/usr',
     detached: true,
     stdio: ['ignore', out, err, 'ipc']
@@ -27,7 +27,7 @@ function startDaemon() {
     daemon.unref();
     daemon.disconnect();
 
-    process.exit();
+    // process.exit();
   });
 }
 

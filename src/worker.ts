@@ -4,7 +4,7 @@ import { logger } from './utils/logger';
 import { writeProcessInfo } from './utils/persistProcess';
 
 const appPath = process.argv[2];
-// console.log(appPath, '======');
+console.log(appPath, '======');
 
 /**
  * run app in one process
@@ -43,7 +43,7 @@ if (cluster.isMaster) {
 
   process.send(`${process.pid}:done`);
 
-  setTimeout(() => {
-    writeProcessInfo(`worker:${process.pid},`);
-  }, 100);
+  // setTimeout(() => {
+  //   writeProcessInfo(`worker:${process.pid},`);
+  // }, 100);
 }

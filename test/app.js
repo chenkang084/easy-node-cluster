@@ -4,8 +4,6 @@ const app = require('express')();
 app.get('/', function(req, res) {
   console.log(process.pid);
 
-  // process.exit();
-
   res.send('process ' + process.pid + ' says hello!').end();
 });
 
