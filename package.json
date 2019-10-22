@@ -7,7 +7,7 @@
     "easy-node-cluster": "./bin/easy-node-cluster"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha  \"./tests/**/*.js\" --exit",
     "build": "rimraf ./lib && tsc "
   },
   "author": "",
@@ -15,6 +15,7 @@
   "devDependencies": {
     "@types/node": "^12.7.12",
     "chai": "^4.2.0",
+    "chalk": "^2.4.2",
     "easy-node-logger": "github:chenkang084/easy-node-logger#master",
     "mocha": "^6.2.1",
     "rimraf": "^3.0.0",
