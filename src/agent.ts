@@ -10,4 +10,5 @@ logger.info(`start agent, processId:${process.pid}`);
 
 process.send('start agent done.');
 
+// keep agent process active
 setInterval(() => {}, 1000 * 60 * 60 * 24);

@@ -1,31 +1,85 @@
 #!/usr/bin/env node
 'use strict';
 const program = require('commander');
-const chalk = require('chalk');
-const argv = require('optimist').boolean('cors').argv;
 const runScript = require('runscript');
 const path = require('path');
-
-const { readProcessInfo } = require('../lib/utils/persistProcess');
 
 const EasyNodeCluster = new require('../lib').default;
 
 program
   .option('--start', 'start server')
   .option('--stop', 'stop server')
+  .option('--restart', 'restart server')
   .option('--list', 'list active process')
   .option('--log', 'show logs');
 
 program.parse(process.argv);
 
 if (program.start) {
+  start();
+}
+
+if (program.stop) {
+  stop();
+}
+
+if (program.restart) {
+  stop().then(() => {
+    start();
+  });
+}
+
+if (program.list) {
+  runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
+    .then(stdio => {
+      const table = stdio.stdout
+        .toString()
+        .split('\n')
+        .filter(item => item.includes('node') && item.includes('--title'))
+        .map(line => {
+          const row = line.split(' ').filter(item => !!item);
+          const processId = (row && row[1]) || '';
+          let type = 'worker';
+          if (line.includes('master')) {
+            type = 'master';
+          } else if (line.includes('agent')) {
+            type = 'agent';
+          }
+
+          return {
+            type,
+            processId
+          };
+        });
+
+      console.table(table);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
+
+if (program.log) {
+  runScript(`cat ${path.join(__dirname, '../out1.log')}`, {
+    stdio: 'pipe'
+  })
+    .then(stdio => {
+      console.log(stdio.stdout.toString());
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
+
+/** functionality **/
+function start() {
   const easyNodeCluster = new EasyNodeCluster();
 
   easyNodeCluster.start();
 }
 
-if (program.stop) {
-  runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
+function stop() {
+  return runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
     .then(stdio => {
       stdio.stdout
         .toString()
@@ -39,37 +93,6 @@ if (program.stop) {
 
           process.kill(processId);
         });
-    })
-    .catch(err => {
-      console.error(err);
-    });
-}
-
-if (program.list) {
-  runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
-    .then(stdio => {
-      stdio.stdout
-        .toString()
-        .split('\n')
-        .filter(item => item.includes('node') && item.includes('--title'))
-        .map(line => {
-          return line.split(' ').filter(item => !!item)[1];
-        })
-        .forEach(processId => {
-          console.log(`process:${processId}`);
-        });
-    })
-    .catch(err => {
-      console.error(err);
-    });
-}
-
-if (program.log) {
-  runScript(`cat ${path.join(__dirname, '../out1.log')}`, {
-    stdio: 'pipe'
-  })
-    .then(stdio => {
-      console.log(stdio.stdout.toString());
     })
     .catch(err => {
       console.error(err);
