@@ -27,6 +27,7 @@
     "forever": "^1.0.0",
     "moment": "^2.24.0",
     "optimist": "^0.6.1",
+    "pidusage": "^2.0.17",
     "runscript": "^1.4.0"
   }
 }

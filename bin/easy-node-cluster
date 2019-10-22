@@ -3,6 +3,7 @@
 const program = require('commander');
 const runScript = require('runscript');
 const path = require('path');
+var pidusage = require('pidusage');
 
 const EasyNodeCluster = new require('../lib').default;
 
@@ -32,7 +33,7 @@ if (program.restart) {
 if (program.list) {
   runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
     .then(stdio => {
-      const table = stdio.stdout
+      const processList = stdio.stdout
         .toString()
         .split('\n')
         .filter(item => item.includes('node') && item.includes('--title'))
@@ -52,7 +53,23 @@ if (program.list) {
           };
         });
 
-      console.table(table);
+      const usageList = processList.map(item => {
+        return new Promise(resolve => {
+          pidusage(item.processId, function(err, stats) {
+            resolve({
+              type: item.type,
+              processId: item.processId,
+              cpuUsage: stats.cpu.toFixed('2') + '%',
+              meoUsage: (stats.memory / 1024 / 1024).toFixed(2) + 'M'
+            });
+          });
+        });
+      });
+
+      Promise.all(usageList).then(info => {
+        console.table(info);
+        process.exit();
+      });
     })
     .catch(err => {
       console.error(err);
