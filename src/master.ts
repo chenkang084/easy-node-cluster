@@ -28,7 +28,8 @@ class EasyNodeMaster extends EventEmitter {
       'node',
       [join(__dirname, './agent.js'), '--title=easy-node-cluster', 'agent'],
       {
-        stdio: ['ignore', process.stdout, process.stderr, 'ipc']
+        stdio: ['ignore', process.stdout, process.stderr, 'ipc'],
+        argv0: 'node --max-old-space-size=2000'
       }
     );
 
@@ -53,13 +54,15 @@ class EasyNodeMaster extends EventEmitter {
       'node',
       [
         join(__dirname, './worker.js'),
+        // '--max-old-space-size=2000',
         // join(__dirname, '../test/app.js'),
         '--title=easy-node-cluster',
         'master'
       ],
       {
         detached: true,
-        stdio: ['ignore', out, err, 'ipc']
+        stdio: ['ignore', out, err, 'ipc'],
+        argv0: 'node --max-old-space-size=2000'
       }
     );
 
