@@ -4,6 +4,14 @@ const program = require('commander');
 const runScript = require('runscript');
 const path = require('path');
 const chalk = require('chalk');
+const fs = require('fs');
+const { init } = require('../lib/utils/setup');
+const configPath = path.join(__dirname, '../easy-node-cluster.json');
+let config = null;
+
+if (fs.existsSync(configPath)) {
+  config = JSON.parse(fs.readFileSync(configPath));
+}
 
 const { getProcessList, start, stop } = new require('../lib/utils/action');
 
@@ -12,12 +20,13 @@ program
   .option('--stop', 'stop server')
   .option('--restart', 'restart server')
   .option('--list', 'list active process')
+  .option('--init', 'init easy-node-cluster.json file')
   .option('--log', 'show logs');
 
 program.parse(process.argv);
 
 if (program.start) {
-  start();
+  start(config);
 } else if (program.stop) {
   stop();
 } else if (program.restart) {
@@ -36,6 +45,8 @@ if (program.start) {
     .catch(err => {
       console.error(err);
     });
+} else if (program.init) {
+  init();
 } else {
   console.log(chalk.red('no command matched.'));
 }

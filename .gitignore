@@ -5,3 +5,4 @@ package-lock.json
 *.js.map
 # lib
 *.log
+easy-node-cluster.json

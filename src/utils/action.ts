@@ -1,4 +1,5 @@
 import EasyNodeCluster from '../index';
+import { ClusterOptions } from '../master';
 var pidusage = require('pidusage');
 const runScript = require('runscript');
 
@@ -55,8 +56,8 @@ export function getProcessList() {
     });
 }
 
-export function start() {
-  const easyNodeCluster = new EasyNodeCluster();
+export function start(config?: ClusterOptions) {
+  const easyNodeCluster = new EasyNodeCluster(config);
 
   easyNodeCluster.start();
 }

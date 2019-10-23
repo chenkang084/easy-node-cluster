@@ -4,19 +4,27 @@ import { openSync } from 'fs';
 import { initProcessInfoFile, writeProcessInfo } from './utils/persistProcess';
 import { logger } from './utils/logger';
 import EventEmitter from 'events';
-// const EventEmitter = require('events');
 
 const out = openSync('./out1.log', 'a');
 const err = openSync('./out2.log', 'a');
 
 const WORKER_PATH = `./worker.js`;
 
-interface clusterOptions {}
+export interface ClusterOptions {
+  name?: string;
+  script: string;
+  instances: number;
+  node_args?: string;
+}
 
 class EasyNodeMaster extends EventEmitter {
-  constructor() {
+  private clusterOptions: ClusterOptions;
+
+  constructor(config?: ClusterOptions) {
     super();
-    // console.log(`==========procesId:${process.pid}`);
+
+    this.clusterOptions = config;
+    console.log(`==========procesId:${process.pid}`, config);
   }
 
   start() {
@@ -28,8 +36,7 @@ class EasyNodeMaster extends EventEmitter {
       'node',
       [join(__dirname, './agent.js'), '--title=easy-node-cluster', 'agent'],
       {
-        stdio: ['ignore', process.stdout, process.stderr, 'ipc'],
-        argv0: 'node --max-old-space-size=2000'
+        stdio: ['ignore', process.stdout, process.stderr, 'ipc']
       }
     );
 
@@ -52,17 +59,10 @@ class EasyNodeMaster extends EventEmitter {
 
     const appProcess = spawn(
       'node',
-      [
-        join(__dirname, './worker.js'),
-        // '--max-old-space-size=2000',
-        // join(__dirname, '../test/app.js'),
-        '--title=easy-node-cluster',
-        'master'
-      ],
+      [join(__dirname, './worker.js'), '--title=easy-node-cluster', 'master'],
       {
         detached: true,
-        stdio: ['ignore', out, err, 'ipc'],
-        argv0: 'node --max-old-space-size=2000'
+        stdio: ['ignore', out, err, 'ipc']
       }
     );
 
