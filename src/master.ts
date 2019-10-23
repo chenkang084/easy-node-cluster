@@ -16,7 +16,7 @@ interface clusterOptions {}
 class EasyNodeMaster extends EventEmitter {
   constructor() {
     super();
-    console.log(`==========procesId:${process.pid}`);
+    // console.log(`==========procesId:${process.pid}`);
   }
 
   start() {
@@ -63,11 +63,7 @@ class EasyNodeMaster extends EventEmitter {
       }
     );
 
-    logger.info(
-      'start daemon process, processId: %s, 守护进程 pid: %s',
-      process.pid,
-      appProcess.pid
-    );
+    logger.info(`start daemon process, daemon pid:${appProcess.pid}`);
 
     // writeProcessInfo(`agentPid: ${(this.agentPid = appProcess.pid)},`);
 

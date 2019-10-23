@@ -25,18 +25,7 @@ if (program.start) {
     start();
   });
 } else if (program.list) {
-  runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
-    .then(stdio => {
-      const usageList = getProcessList(stdio);
-
-      Promise.all(usageList).then(info => {
-        console.table(info);
-        process.exit();
-      });
-    })
-    .catch(err => {
-      console.error(err);
-    });
+  getProcessList();
 } else if (program.log) {
   runScript(`cat ${path.join(__dirname, '../out1.log')}`, {
     stdio: 'pipe'

@@ -2,9 +2,9 @@ import { cpus } from 'os';
 const cluster = require('cluster');
 import { logger } from './utils/logger';
 import { join } from 'path';
-import { writeProcessInfo } from './utils/persistProcess';
+import { stop } from './utils/action';
 
-const appPath = join(__dirname, '../test/app.js');
+const appPath = join(__dirname, '../tests1/app.js');
 
 // const appPath = process.argv[2];
 // logger.info(appPath, '======');
@@ -18,6 +18,8 @@ process.argv[3] = 'worker';
 
 // const cpuNums = cpus().length;
 const cpuNums = 2;
+const restartLimitation = 10;
+let restartCnt = 0;
 
 if (cluster.isMaster) {
   logger.info('==========start master process======');
@@ -43,7 +45,16 @@ if (cluster.isMaster) {
         signal
     );
     logger.info('Starting a new worker');
-    cluster.fork();
+
+    // set restart limitation
+    if (restartCnt <= restartLimitation) {
+      restartCnt++;
+      cluster.fork();
+    } else {
+      logger.error('Exceeding system limitation');
+      console.log(`kill :${process.pid}`);
+      stop(process.pid);
+    }
   });
 } else {
   // process.argv[3] = 'worker';

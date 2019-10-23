@@ -7,39 +7,52 @@ interface ProcessInfo {
   processId: string | number;
 }
 
-export function getProcessList(stdio: any) {
-  const processList = stdio.stdout
-    .toString()
-    .split('\n')
-    .filter((item: string) => item.includes('node') && item.includes('--title'))
-    .map((line: string) => {
-      const row = line.split(' ').filter(item => !!item);
-      const processId = (row && row[1]) || '';
-      let type = 'worker';
-      if (line.includes('master')) {
-        type = 'master';
-      } else if (line.includes('agent')) {
-        type = 'agent';
-      }
+export function getProcessList() {
+  return runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
+    .then((stdio: any) => {
+      const processList = stdio.stdout
+        .toString()
+        .split('\n')
+        .filter(
+          (item: string) => item.includes('node') && item.includes('--title')
+        )
+        .map((line: string) => {
+          const row = line.split(' ').filter(item => !!item);
+          const processId = (row && row[1]) || '';
+          let type = 'worker';
+          if (line.includes('master')) {
+            type = 'master';
+          } else if (line.includes('agent')) {
+            type = 'agent';
+          }
 
-      return {
-        type,
-        processId
-      };
-    });
+          return {
+            type,
+            processId
+          };
+        });
 
-  return processList.map((item: ProcessInfo) => {
-    return new Promise(resolve => {
-      pidusage(item.processId, function(err: Error, stats: any) {
-        resolve({
-          type: item.type,
-          processId: item.processId,
-          cpuUsage: stats.cpu.toFixed('2') + '%',
-          meoUsage: (stats.memory / 1024 / 1024).toFixed(2) + 'M'
+      const usageList = processList.map((item: ProcessInfo) => {
+        return new Promise(resolve => {
+          pidusage(item.processId, function(err: Error, stats: any) {
+            resolve({
+              type: item.type,
+              processId: item.processId,
+              cpuUsage: stats.cpu.toFixed('2') + '%',
+              meoUsage: (stats.memory / 1024 / 1024).toFixed(2) + 'M'
+            });
+          });
         });
       });
+
+      Promise.all(usageList).then(info => {
+        console.table(info);
+        process.exit();
+      });
+    })
+    .catch((err: Error) => {
+      console.error(err);
     });
-  });
 }
 
 export function start() {
@@ -48,7 +61,7 @@ export function start() {
   easyNodeCluster.start();
 }
 
-export function stop() {
+export function stop(currentPid?: number) {
   return runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
     .then((stdio: any) => {
       stdio.stdout
@@ -63,8 +76,14 @@ export function stop() {
         .forEach((processId: number) => {
           console.log(`kill process:${processId}`);
 
-          process.kill(processId);
+          if (processId * 1 !== currentPid) {
+            process.kill(processId);
+          }
         });
+
+      if (currentPid) {
+        process.kill(currentPid);
+      }
     })
     .catch((err: Error) => {
       console.error(err);
