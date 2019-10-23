@@ -36,8 +36,14 @@ class EasyNodeMaster extends EventEmitter {
       config
     );
 
-    this.normal = openSync(join(process.cwd(), config.logs.normal), 'a');
-    this.error = openSync(join(process.cwd(), config.logs.error), 'a');
+    this.normal = openSync(
+      join(process.cwd(), this.clusterOptions.logs.normal),
+      'a'
+    );
+    this.error = openSync(
+      join(process.cwd(), this.clusterOptions.logs.error),
+      'a'
+    );
   }
 
   start() {
