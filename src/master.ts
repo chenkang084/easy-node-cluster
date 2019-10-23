@@ -5,9 +5,6 @@ import { initProcessInfoFile, writeProcessInfo } from './utils/persistProcess';
 import { logger } from './utils/logger';
 import EventEmitter from 'events';
 
-const out = openSync('./out1.log', 'a');
-const err = openSync('./out2.log', 'a');
-
 const WORKER_PATH = `./worker.js`;
 
 export interface ClusterOptions {
@@ -15,15 +12,32 @@ export interface ClusterOptions {
   script: string;
   instances: number;
   node_args?: string;
+  logs: {
+    normal: string;
+    error: string;
+  };
 }
 
 class EasyNodeMaster extends EventEmitter {
   private clusterOptions: ClusterOptions;
+  private readonly normal: number;
+  private readonly error: number;
 
   constructor(config?: ClusterOptions) {
     super();
 
-    this.clusterOptions = config;
+    this.clusterOptions = Object.assign(
+      {
+        logs: {
+          normal: './runtime.log',
+          error: './error.log'
+        }
+      },
+      config
+    );
+
+    this.normal = openSync(join(process.cwd(), config.logs.normal), 'a');
+    this.error = openSync(join(process.cwd(), config.logs.error), 'a');
   }
 
   start() {
@@ -40,7 +54,7 @@ class EasyNodeMaster extends EventEmitter {
         JSON.stringify(this.clusterOptions)
       ],
       {
-        stdio: ['ignore', process.stdout, process.stderr, 'ipc']
+        stdio: ['ignore', this.normal, this.error, 'ipc']
       }
     );
 
@@ -71,7 +85,7 @@ class EasyNodeMaster extends EventEmitter {
       ],
       {
         detached: true,
-        stdio: ['ignore', out, err, 'ipc']
+        stdio: ['ignore', this.normal, this.error, 'ipc']
       }
     );
 

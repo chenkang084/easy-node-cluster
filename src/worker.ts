@@ -19,7 +19,7 @@ process.argv[3] = 'worker';
  */
 
 // const cpuNums = cpus().length;
-const cpuNums = 1;
+const cpuNums = 2;
 const restartLimitation = 10;
 let restartCnt = 0;
 

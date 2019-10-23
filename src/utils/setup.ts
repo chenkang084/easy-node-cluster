@@ -9,7 +9,7 @@ const templateJson = {
   node_args: '--max_old_space_size=2048'
 };
 
-const jsonPath = join(__dirname, '../../easy-node-cluster.json');
+const jsonPath = join(process.cwd(), './easy-node-cluster.json');
 
 export const init = () => {
   if (existsSync(jsonPath)) {

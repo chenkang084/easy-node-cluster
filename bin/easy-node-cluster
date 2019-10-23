@@ -6,7 +6,7 @@ const path = require('path');
 const chalk = require('chalk');
 const fs = require('fs');
 const { init } = require('../lib/utils/setup');
-const configPath = path.join(__dirname, '../easy-node-cluster.json');
+const configPath = path.join(process.cwd(), './easy-node-cluster.json');
 let config = null;
 
 if (fs.existsSync(configPath)) {
