@@ -4,13 +4,15 @@ import { logger } from './utils/logger';
 import { join } from 'path';
 import { stop } from './utils/action';
 
-const appPath = join(__dirname, '../tests/app.js');
+const { script, node_args } = JSON.parse(process.argv[4]);
+
+const appPath = join(process.cwd(), script);
 
 // const appPath = ;
-logger.info('XXX', process.argv[2], process.argv);
+// logger.info('XXX', process.argv[4]);
 
 // master the process as worker
-process.argv[4] = 'worker';
+process.argv[3] = 'worker';
 
 /**
  * run app in one process
@@ -27,7 +29,7 @@ if (cluster.isMaster) {
 
   for (let i = 0; i < cpuNums; i++) {
     const worker = cluster.fork({
-      NODE_OPTIONS: '--max-old-space-size=2000'
+      NODE_OPTIONS: node_args
     });
 
     // worker.process.argv[3] = 'worker';
@@ -52,7 +54,7 @@ if (cluster.isMaster) {
     if (restartCnt <= restartLimitation) {
       restartCnt++;
       cluster.fork({
-        NODE_OPTIONS: '--max-old-space-size=2000'
+        NODE_OPTIONS: node_args
       });
     } else {
       logger.error('Exceeding system limitation');

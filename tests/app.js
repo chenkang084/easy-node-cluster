@@ -46,3 +46,5 @@ app.listen(8000, function() {
 
   process.send('started');
 });
+
+// console.log(JSON.parse(process.argv[2]));

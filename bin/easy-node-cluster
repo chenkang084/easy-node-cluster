@@ -26,12 +26,14 @@ program
 program.parse(process.argv);
 
 if (program.start) {
-  start(config);
+  stop().then(() => {
+    start(config);
+  });
 } else if (program.stop) {
   stop();
 } else if (program.restart) {
   stop().then(() => {
-    start();
+    start(config);
   });
 } else if (program.list) {
   getProcessList();

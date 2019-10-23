@@ -6,11 +6,15 @@
   "bin": {
     "easy-node-cluster": "./bin/easy-node-cluster"
   },
+  "files": [
+    "lib",
+    "bin"
+  ],
   "scripts": {
     "test": "mocha  \"./tests/**/*.js\" --exit",
     "build": "rimraf ./lib && tsc "
   },
-  "author": "",
+  "author": "chenkang084@163.com",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^12.7.12",

@@ -24,7 +24,6 @@ class EasyNodeMaster extends EventEmitter {
     super();
 
     this.clusterOptions = config;
-    console.log(`==========procesId:${process.pid}`, config);
   }
 
   start() {
@@ -34,7 +33,12 @@ class EasyNodeMaster extends EventEmitter {
   startAgent() {
     const agent = spawn(
       'node',
-      [join(__dirname, './agent.js'), '--title=easy-node-cluster', 'agent'],
+      [
+        join(__dirname, './agent.js'),
+        '--title=easy-node-cluster',
+        'agent',
+        JSON.stringify(this.clusterOptions)
+      ],
       {
         stdio: ['ignore', process.stdout, process.stderr, 'ipc']
       }
@@ -59,7 +63,12 @@ class EasyNodeMaster extends EventEmitter {
 
     const appProcess = spawn(
       'node',
-      [join(__dirname, './worker.js'), '--title=easy-node-cluster', 'master'],
+      [
+        join(__dirname, './worker.js'),
+        '--title=easy-node-cluster',
+        'master',
+        JSON.stringify(this.clusterOptions)
+      ],
       {
         detached: true,
         stdio: ['ignore', out, err, 'ipc']
@@ -67,8 +76,6 @@ class EasyNodeMaster extends EventEmitter {
     );
 
     logger.info(`start daemon process, daemon pid:${appProcess.pid}`);
-
-    // writeProcessInfo(`agentPid: ${(this.agentPid = appProcess.pid)},`);
 
     appProcess.on('message', (msg: string) => {
       logger.info(`master:worker received msg:${msg}`);
