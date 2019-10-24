@@ -1,14 +1,15 @@
 import EasyNodeCluster from '../index';
 import { ClusterOptions } from '../master';
+import { logger } from './logger';
 var pidusage = require('pidusage');
 const runScript = require('runscript');
 
 interface ProcessInfo {
   type: string;
-  processId: string | number;
+  processId: number;
 }
 
-export function getProcessList() {
+export function getProcessList(): Promise<any> {
   return runScript('ps -ef | grep easy-node-cluster', { stdio: 'pipe' })
     .then((stdio: any) => {
       const processList = stdio.stdout
@@ -46,10 +47,7 @@ export function getProcessList() {
         });
       });
 
-      Promise.all(usageList).then(info => {
-        console.table(info);
-        process.exit();
-      });
+      return Promise.all(usageList);
     })
     .catch((err: Error) => {
       console.error(err);
@@ -60,6 +58,12 @@ export function start(config?: ClusterOptions) {
   const easyNodeCluster = new EasyNodeCluster(config);
 
   easyNodeCluster.start();
+}
+
+export function restart(config?: ClusterOptions) {
+  stop().then(() => {
+    start(config);
+  });
 }
 
 export function stop(currentPid?: number) {
@@ -89,4 +93,20 @@ export function stop(currentPid?: number) {
     .catch((err: Error) => {
       console.error(err);
     });
+}
+
+export function reload(config?: ClusterOptions) {
+  getProcessList().then((data: ProcessInfo[]) => {
+    const workers = data.filter(item => item.type === 'worker');
+
+    if (workers.length > 0) {
+      workers.forEach(item => {
+        logger.info(`kill processId:${item.processId} to reload.`);
+        process.kill(item.processId);
+      });
+      process.exit();
+    } else {
+      restart(config);
+    }
+  });
 }

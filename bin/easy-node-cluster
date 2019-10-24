@@ -13,12 +13,15 @@ if (fs.existsSync(configPath)) {
   config = JSON.parse(fs.readFileSync(configPath));
 }
 
-const { getProcessList, start, stop } = new require('../lib/utils/action');
+const { getProcessList, start, stop, reload, restart } = new require(
+  '../lib/utils/action'
+);
 
 program
   .option('--start', 'start server')
   .option('--stop', 'stop server')
   .option('--restart', 'restart server')
+  .option('--reload', 'reload server')
   .option('--list', 'list active process')
   .option('--init', 'init easy-node-cluster.json file')
   .option('--log', 'show logs');
@@ -32,11 +35,12 @@ if (program.start) {
 } else if (program.stop) {
   stop();
 } else if (program.restart) {
-  stop().then(() => {
-    start(config);
-  });
+  restart(config);
 } else if (program.list) {
-  getProcessList();
+  getProcessList().then(data => {
+    console.table(data);
+    process.exit();
+  });
 } else if (program.log) {
   runScript(`cat ${path.join(__dirname, '../out1.log')}`, {
     stdio: 'pipe'
@@ -49,6 +53,8 @@ if (program.start) {
     });
 } else if (program.init) {
   init();
+} else if (program.reload) {
+  reload(config);
 } else {
   console.log(chalk.red('no command matched.'));
 }

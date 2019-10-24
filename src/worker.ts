@@ -1,15 +1,11 @@
-import { cpus } from 'os';
 import cluster from 'cluster';
 import { logger } from './utils/logger';
 import { join } from 'path';
 import { stop } from './utils/action';
 
-const { script, node_args } = JSON.parse(process.argv[4]);
+const { script, node_args, instances } = JSON.parse(process.argv[4]);
 
 const appPath = join(process.cwd(), script);
-
-// const appPath = ;
-// logger.info('XXX', process.argv[4]);
 
 // master the process as worker
 process.argv[3] = 'worker';
@@ -19,20 +15,24 @@ process.argv[3] = 'worker';
  */
 
 // const cpuNums = cpus().length;
-const cpuNums = 2;
+const cpuNums = instances || 2;
 const restartLimitation = 10;
 let restartCnt = 0;
+const workerMap = new Map();
 
 if (cluster.isMaster) {
   logger.info('==========start master process======');
   process.send(`**********${process.pid} **********`);
 
   for (let i = 0; i < cpuNums; i++) {
-    const worker = cluster.fork({
-      NODE_OPTIONS: node_args
-    });
+    const env = {
+      NODE_OPTIONS: node_args,
+      NODE_APP_INSTANCE: i
+    };
+    const worker = cluster.fork(env);
 
-    // worker.process.argv[3] = 'worker';
+    workerMap.set(worker.process.pid, env);
+
     logger.info(`==========fork process,processId:${worker.process.pid}======`);
     worker.on('message', (msg: string) => {
       logger.info(`recevied worker msg in master proces=${process.pid}:${msg}`);
@@ -53,9 +53,12 @@ if (cluster.isMaster) {
     // set restart limitation
     if (restartCnt <= restartLimitation) {
       restartCnt++;
-      cluster.fork({
-        NODE_OPTIONS: node_args
-      });
+
+      const env = workerMap.get(worker.process.pid);
+      const newWorker = cluster.fork(env);
+
+      workerMap.set(newWorker.process.pid, env);
+      workerMap.delete(worker.process.pid);
     } else {
       logger.error('Exceeding system limitation');
       console.log(`kill :${process.pid}`);
@@ -63,7 +66,6 @@ if (cluster.isMaster) {
     }
   });
 } else {
-  // process.argv[3] = 'worker';
   logger.info(`process:${process.pid} start app`);
   // run app
   require(appPath);

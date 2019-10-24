@@ -18,9 +18,16 @@ let replaceThing = function() {
 };
 
 app.get('/', function(req, res) {
-  console.log(process.pid);
+  console.log(process.pid, process.env.NODE_APP_INSTANCE);
 
-  res.send('process ' + process.pid + ' says hello!').end();
+  res
+    .send(
+      'process ' +
+        process.pid +
+        ' says11 hello!' +
+        process.env.NODE_APP_INSTANCE
+    )
+    .end();
 });
 
 app.get('/shutdown', function(req, res) {
