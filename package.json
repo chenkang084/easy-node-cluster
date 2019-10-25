@@ -11,7 +11,7 @@
     "bin"
   ],
   "scripts": {
-    "test": "mocha  \"./tests/**/*.js\" --exit",
+    "test": "npm run build && mocha --timeout 10000  \"./tests/**/*.test.js\" --exit ",
     "build": "rimraf ./lib && tsc "
   },
   "author": "chenkang084@163.com",
@@ -21,6 +21,7 @@
     "chai": "^4.2.0",
     "chalk": "^2.4.2",
     "easy-node-logger": "github:chenkang084/easy-node-logger#master",
+    "easy-node-utils": "github:chenkang084/easy-node-utils#master",
     "mocha": "^6.2.1",
     "rimraf": "^3.0.0",
     "ts-node": "^8.4.1",

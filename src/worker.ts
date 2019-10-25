@@ -5,6 +5,7 @@ import { stop } from './utils/action';
 
 const { script, node_args, instances } = JSON.parse(process.argv[4]);
 
+console.log(process.argv, 'xxxxxxx');
 const appPath = join(process.cwd(), script);
 
 // master the process as worker

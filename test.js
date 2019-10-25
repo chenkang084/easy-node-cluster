@@ -1,21 +1,13 @@
-var { spawn } = require('child_process');
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const configPath = path.join(process.cwd(), './easy-node-cluster.json');
+let config = null;
 
-// function start() {
-//   const worker = spawn('node', ['./test/app.js'], {
-//     detached: true,
-//     stdio: 'ignore'
-//     //   stdio: 'ignore'
-//   });
+if (fs.existsSync(configPath)) {
+  config = JSON.parse(fs.readFileSync(configPath));
+}
 
-//   worker.unref();
-// }
+const { start } = require('./lib/utils/action');
 
-// start();
-
-const worker = spawn('node', ['./test/app.js'], {
-  detached: true,
-  stdio: 'ignore'
-  //   stdio: 'ignore'
-});
-
-worker.unref();
+start(config);
