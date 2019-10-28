@@ -1,9 +1,18 @@
 import Logger from 'easy-node-logger/lib';
+import { join } from 'path';
+import { readFileSync, existsSync } from 'fs';
+import { ClusterOptions } from '../master';
+const configPath = join(process.cwd(), './easy-node-cluster.json');
+let config: ClusterOptions = null;
+if (existsSync(configPath)) {
+  config = JSON.parse(readFileSync(configPath).toString());
+}
+
 const logger = new Logger({
   projectName: 'easy-node-logger',
   momentFormat: 'YYYY-MM-DD HH:mm:ss',
-  logFilePath: 'mercury-oncall.log',
+  logFilePath: 'runtime.log',
   environment: 'node',
-  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info'
+  level: config.logs.level || 'info'
 });
 export { logger };

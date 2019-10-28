@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-'use strict';
-const program = require('commander');
-const runScript = require('runscript');
-const path = require('path');
-const chalk = require('chalk');
-const fs = require('fs');
-const { init } = require('../lib/utils/setup');
-const configPath = path.join(process.cwd(), './easy-node-cluster.json');
+"use strict";
+const program = require("commander");
+const runScript = require("runscript");
+const path = require("path");
+const chalk = require("chalk");
+const fs = require("fs");
+const { init } = require("../lib/utils/setup");
+const configPath = path.join(process.cwd(), "./easy-node-cluster.json");
 let config = null;
 
 if (fs.existsSync(configPath)) {
@@ -14,17 +14,18 @@ if (fs.existsSync(configPath)) {
 }
 
 const { getProcessList, start, stop, reload, restart } = new require(
-  '../lib/utils/action'
+  "../lib/utils/action"
 );
 
 program
-  .option('--start', 'start server')
-  .option('--stop', 'stop server')
-  .option('--restart', 'restart server')
-  .option('--reload', 'reload server')
-  .option('--list', 'list active process')
-  .option('--init', 'init easy-node-cluster.json file')
-  .option('--log', 'show logs');
+  .option("--start", "start server")
+  .option("--stop", "stop server")
+  .option("--restart", "restart server")
+  .option("--reload", "reload server")
+  .option("--list", "list active process")
+  .option("--ls", "list active process")
+  .option("--init", "init easy-node-cluster.json file")
+  .option("--log", "show logs");
 
 program.parse(process.argv);
 
@@ -36,14 +37,14 @@ if (program.start) {
   stop();
 } else if (program.restart) {
   restart(config);
-} else if (program.list) {
+} else if (program.list || program.ls) {
   getProcessList().then(data => {
     console.table(data);
     process.exit();
   });
 } else if (program.log) {
-  runScript(`cat ${path.join(__dirname, '../out1.log')}`, {
-    stdio: 'pipe'
+  runScript(`cat ${path.join(__dirname, "../out1.log")}`, {
+    stdio: "pipe"
   })
     .then(stdio => {
       console.log(stdio.stdout.toString());
@@ -56,5 +57,5 @@ if (program.start) {
 } else if (program.reload) {
   reload(config);
 } else {
-  console.log(chalk.red('no command matched.'));
+  console.log(chalk.red("no command matched."));
 }

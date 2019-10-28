@@ -5,24 +5,17 @@ import { stop } from './utils/action';
 
 const { script, node_args, instances } = JSON.parse(process.argv[4]);
 
-console.log(process.argv, 'xxxxxxx');
 const appPath = join(process.cwd(), script);
-
-// master the process as worker
+// set the fork process as worker
 process.argv[3] = 'worker';
 
-/**
- * run app in one process
- */
-
-// const cpuNums = cpus().length;
 const cpuNums = instances || 2;
 const restartLimitation = 10;
 let restartCnt = 0;
 const workerMap = new Map();
 
 if (cluster.isMaster) {
-  logger.info('==========start master process======');
+  logger.info(`==========start deamon process${process.pid}======`);
   process.send(`**********${process.pid} **********`);
 
   for (let i = 0; i < cpuNums; i++) {
@@ -36,7 +29,9 @@ if (cluster.isMaster) {
 
     logger.info(`==========fork process,processId:${worker.process.pid}======`);
     worker.on('message', (msg: string) => {
-      logger.info(`recevied worker msg in master proces=${process.pid}:${msg}`);
+      logger.info(
+        `deamon process recevied the msg from worker(proces=${process.pid})msg:${msg}`
+      );
     });
   }
 
@@ -68,6 +63,7 @@ if (cluster.isMaster) {
   });
 } else {
   logger.info(`process:${process.pid} start app`);
+
   // run app
   require(appPath);
 

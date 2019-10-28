@@ -1,14 +1,18 @@
 /// <reference types="node" />
+import { logMethodLevel } from 'easy-node-logger';
 import EventEmitter from 'events';
-export interface ClusterOptions {
-    name?: string;
-    script: string;
+declare class ClusterOptionDefault {
+    name: string;
     instances: number;
-    node_args?: string;
     logs: {
         normal: string;
         error: string;
+        level: logMethodLevel;
     };
+}
+export interface ClusterOptions extends ClusterOptionDefault {
+    script: string;
+    node_args?: string;
 }
 declare class EasyNodeMaster extends EventEmitter {
     private clusterOptions;

@@ -1,21 +1,21 @@
-const { describe, it } = require('mocha');
-const { expect } = require('chai');
-const { commonUtil } = require('easy-node-utils');
-const path = require('path');
-const fs = require('fs');
-const configPath = path.join(process.cwd(), './easy-node-cluster.json');
+const { describe, it } = require("mocha");
+const { expect } = require("chai");
+const { commonUtil } = require("easy-node-utils");
+const path = require("path");
+const fs = require("fs");
+const configPath = path.join(process.cwd(), "./easy-node-cluster.json");
 let config = null;
-const { start, restart, stop, getProcessList } = require('../lib/utils/action');
+const { start, restart, stop, getProcessList } = require("../lib/utils/action");
 if (fs.existsSync(configPath)) {
   config = JSON.parse(fs.readFileSync(configPath));
 }
 
-describe('test easy-node-cluster', () => {
+describe("test easy-node-cluster", () => {
   // before(() => {
 
   // });
 
-  it('test start cluster', async () => {
+  it("test start cluster", async () => {
     stop();
     await commonUtil.sleep(2000);
     start(config);
@@ -24,7 +24,7 @@ describe('test easy-node-cluster', () => {
     expect(data.length).is.greaterThan(0);
   });
 
-  it('test stop cluster', async () => {
+  it("test stop cluster", async () => {
     stop();
     await commonUtil.sleep(2000);
     const data = await getProcessList();

@@ -1,21 +1,23 @@
-import { fork, execFileSync, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { join } from 'path';
 import { openSync } from 'fs';
-import { initProcessInfoFile, writeProcessInfo } from './utils/persistProcess';
+import { logMethodLevel } from 'easy-node-logger';
 import { logger } from './utils/logger';
 import EventEmitter from 'events';
 
-const WORKER_PATH = `./worker.js`;
-
-export interface ClusterOptions {
-  name?: string;
-  script: string;
-  instances: number;
-  node_args?: string;
-  logs: {
-    normal: string;
-    error: string;
+class ClusterOptionDefault {
+  name = 'easy-node-cluster';
+  instances = 2;
+  logs = {
+    normal: './runtime.log',
+    error: './error.log',
+    level: 'error' as logMethodLevel
   };
+}
+
+export interface ClusterOptions extends ClusterOptionDefault {
+  script: string;
+  node_args?: string;
 }
 
 class EasyNodeMaster extends EventEmitter {
@@ -26,15 +28,7 @@ class EasyNodeMaster extends EventEmitter {
   constructor(config?: ClusterOptions) {
     super();
 
-    this.clusterOptions = Object.assign(
-      {
-        logs: {
-          normal: './runtime.log',
-          error: './error.log'
-        }
-      },
-      config
-    );
+    this.clusterOptions = Object.assign(new ClusterOptionDefault(), config);
 
     this.normal = openSync(
       join(process.cwd(), this.clusterOptions.logs.normal),
@@ -60,7 +54,7 @@ class EasyNodeMaster extends EventEmitter {
         JSON.stringify(this.clusterOptions)
       ],
       {
-        stdio: ['ignore', this.normal, this.error, 'ipc']
+        stdio: ['ignore', 'ignore', this.error, 'ipc']
       }
     );
 
@@ -73,14 +67,12 @@ class EasyNodeMaster extends EventEmitter {
       agent.disconnect();
 
       agent.on('exit', (msg: string) => {
-        console.log(`agent:exit`);
+        logger.info(`agent:exit`, msg);
       });
     });
   }
 
   forkWorkers() {
-    logger.info('------start app process to fork worker------');
-
     const appProcess = spawn(
       'node',
       [
@@ -91,21 +83,21 @@ class EasyNodeMaster extends EventEmitter {
       ],
       {
         detached: true,
-        stdio: ['ignore', this.normal, this.error, 'ipc']
+        stdio: ['ignore', 'ignore', this.error, 'ipc']
       }
     );
 
     logger.info(`start daemon process, daemon pid:${appProcess.pid}`);
 
     appProcess.on('message', (msg: string) => {
-      logger.info(`master:worker received msg:${msg}`);
+      logger.info(`master received msg from deamon process:${msg}`);
 
       appProcess.unref();
       appProcess.disconnect();
     });
 
     appProcess.on('exit', (msg: string) => {
-      logger.info(`appProcess:exit`);
+      logger.info(`daemon process:exit`);
     });
   }
 }
