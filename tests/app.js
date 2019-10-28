@@ -39,19 +39,13 @@ app.get("/shutdown", function(req, res) {
 app.get("/leak", function closureLeak(req, res, next) {
   for (let i = 0; i < 200; i++) {
     replaceThing();
-
-    // console.log(process.memoryUsage().rss / 1024 / 1024);
   }
 
-  res.send("Hello Node");
+  res.send("Hello Node" + process.pid);
 });
 
 app.listen(8000, function() {
   console.log(
     "Process " + process.pid + " is listening to all incoming requests"
   );
-
-  process.send("started");
 });
-
-// console.log(JSON.parse(process.argv[2]));

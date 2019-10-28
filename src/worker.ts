@@ -62,8 +62,6 @@ if (cluster.isMaster) {
     }
   });
 } else {
-  logger.info(`process:${process.pid} start app`);
-
   // run app
   require(appPath);
 
